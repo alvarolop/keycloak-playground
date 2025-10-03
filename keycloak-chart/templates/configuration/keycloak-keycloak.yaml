@@ -1,0 +1,66 @@
+---
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instances: 1
+  bootstrapAdmin:
+    user:
+      secret: keycloak-admin
+  db:
+    vendor: postgres
+    host: {{ .Values.postgresql.name }}
+    usernameSecret:
+      name: {{ .Values.postgresql.name }}-credentials
+      key: username
+    passwordSecret:
+      name: {{ .Values.postgresql.name }}-credentials
+      key: password
+  http:
+    tlsSecret: keycloak-tls
+    # https://www.keycloak.org/operator/advanced-configuration#_parameterizing_service_labels_and_annotations
+    # annotations:
+    #   service.beta.openshift.io/serving-cert-secret-name: keycloak-tls
+  # hostname:
+  #   hostname: test.keycloak.org
+  ingress:
+    annotations:
+      route.openshift.io/destination-ca-certificate-secret: keycloak-tls
+      route.openshift.io/termination: reencrypt
+    className: openshift-default
+  proxy:
+    headers: xforwarded # double check your reverse proxy sets and overwrites the X-Forwarded-* headers
+{{- if .Values.keycloak.resources }}
+  resources:
+{{- toYaml .Values.keycloak.resources | nindent 4 }}
+{{- end }}
+{{- if .Values.keycloak.tracing }}
+  tracing:
+    enabled: {{ .Values.keycloak.tracing.enabled | default false }}
+    endpoint: {{ .Values.keycloak.tracing.endpoint | default "http://localhost:4317" }}
+    samplerType: {{ .Values.keycloak.tracing.samplerType | default "traceidratio" }}
+    samplerRatio: {{ .Values.keycloak.tracing.samplerRatio | default 1 }}
+    resourceAttributes:
+      some.attribute: something
+  additionalOptions:
+    {{ if .Values.keycloak.logging }}
+    - name: log-console-output
+      value: {{ .Values.keycloak.logging.logConsoleOutput | default "default" }}
+    {{ end }}
+    {{ if .Values.keycloak.tracing.enabled }}
+    - name: tracing-jdbc-enabled
+      value: 'false'
+    {{ end }}
+    {{ if .Values.keycloak.metrics.enabled }}
+    - name: metrics-enabled
+      value: 'true'
+      {{ if .Values.keycloak.metrics.eventMetricsUserEnabled }}
+    - name: event-metrics-user-enabled
+      value: 'true'
+      {{ end }}
+    {{ end }}
+{{- end }}

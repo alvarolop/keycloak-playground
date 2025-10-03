@@ -1,0 +1,11 @@
+{{- if .Values.operator.enabled }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keycloak
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    openshift.io/display-name: "Keycloak"
+    argocd.argoproj.io/sync-wave: "-10"
+{{- end }}

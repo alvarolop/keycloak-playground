@@ -1,0 +1,42 @@
+{{- range $realm := .Values.realms }}
+---
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: {{ $realm.name }}
+  namespace: {{ $.Values.global.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  keycloakCRName: keycloak
+  realm:
+    id: {{ $realm.name }}
+    realm: {{ $realm.name }}
+    displayName: {{ $realm.displayName }}
+    enabled: true
+    clients:
+      # - redirectUris:
+      #     - 'https://changeme.com/*'
+      #   enabled: true
+      #   clientId: rhdh-client
+      #   
+      #   standardFlowEnabled: true
+      #   serviceAccountsEnabled: true
+      - name: {{ $realm.clientName }}
+        clientId: {{ $realm.clientName }}
+        enabled: true
+        redirectUris:
+          - "https://oauth-openshift.apps.{{ $.Values.global.clusterDomain }}/oauth2callback/keycloak/*"
+        directAccessGrantsEnabled: true
+    users:
+      - username: {{ $realm.user.username }}
+        email: {{ $realm.user.email }}
+        emailVerified: true
+        firstName: {{ $realm.user.firstName }}
+        lastName: {{ $realm.user.lastName }}
+        enabled: true
+        # TO DO: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html-single/operator_guide/index#realm-import-placeholders
+        credentials:
+          - value: {{ $realm.user.password }}
+    groups: []
+{{- end }}

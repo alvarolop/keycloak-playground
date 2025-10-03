@@ -1,0 +1,65 @@
+{{- if .Values.postgresql.enabled }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.postgresql.name }}
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  serviceName: {{ .Values.postgresql.name }}
+  selector:
+    matchLabels:
+      app: {{ .Values.postgresql.name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.postgresql.name }}
+    spec:
+      containers:
+        - name: {{ .Values.postgresql.name }}
+          image: {{ .Values.postgresql.image.name }}:{{ .Values.postgresql.image.tag }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.name }}-credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.name }}-credentials
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.name }}-credentials
+                  key: database
+            - name: PGDATA
+              value: /data/pgdata
+          {{- if .Values.postgresql.ssl }}
+            - name: POSTGRES_INITDB_ARGS
+              value: -c ssl=on -c ssl_cert_file=/etc/ssl/certs/tls.crt -c ssl_key_file=/etc/ssl/certs/tls.key
+          {{- end }}
+          volumeMounts:
+            - mountPath: /data
+              name: data-volume
+          {{- if .Values.postgresql.ssl }}
+            - mountPath: /etc/ssl/certs
+              name: ssl-volume
+              readOnly: true
+          {{- end }}
+      volumes:
+        - name: data-volume
+          # emptyDir: {}
+          persistentVolumeClaim:
+            claimName: {{ .Values.postgresql.name }}-data
+      {{- if .Values.postgresql.ssl }}
+        - name: ssl-volume
+          secret:
+            secretName: {{ .Values.postgresql.name }}-tls
+            defaultMode: 0440
+      {{- end }}
+{{- end }}

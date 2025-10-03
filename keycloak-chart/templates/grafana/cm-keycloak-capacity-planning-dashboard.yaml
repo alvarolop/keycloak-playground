@@ -1,0 +1,13 @@
+{{- if .Values.keycloak.metrics.grafanaDashboardsEnabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-capacity-planning-dashboard
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: keycloak
+data:
+  dashboard.json: |-
+    {{- tpl ($.Files.Get "conf/grafana/keycloak-capacity-planning-dashboard.json") . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,22 @@
+{{- if .Values.keycloak.metrics.grafanaDashboardsEnabled }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: keycloak-troubleshooting
+  labels:
+    app: grafana
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  configMapRef:
+    name: keycloak-troubleshooting-dashboard
+    key: "dashboard.json"
+  folder: "Keycloak"
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "Prometheus"
+{{- end }}

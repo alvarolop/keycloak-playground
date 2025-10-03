@@ -1,0 +1,28 @@
+{{- if .Values.keycloak.metrics.enabled }}
+---
+# https://www.keycloak.org/operator/advanced-configuration#_servicemonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: keycloak
+  namespace: {{ .Values.global.namespace }} 
+spec:
+  endpoints:
+  - interval: 30s
+    path: /metrics
+    port: management
+    scheme: https
+    scrapeTimeout: 10s
+    tlsConfig:
+      insecureSkipVerify: true
+  namespaceSelector:
+    matchNames:
+    - {{ .Values.global.namespace }}
+  selector:
+    matchLabels:
+      app: keycloak
+      app.kubernetes.io/instance: keycloak
+      app.kubernetes.io/managed-by: keycloak-operator
+  scrapeProtocols:
+    - OpenMetricsText1.0.0
+{{- end }}

@@ -1,0 +1,60 @@
+# Default values for keycloak.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  namespace: keycloak
+  clusterDomain: $BASE_DOMAIN # ocp.sandboxXXX.example.com
+
+operator:
+  enabled: false
+  channel: stable-v26.2
+  installPlanApproval: Automatic
+
+keycloak:
+  bootstrapAdmin:
+    username: admin
+    password: admin
+  # logging:
+  #   # Set the log output to JSON or default (plain) unstructured logging
+  #   logConsoleOutput: json
+  # https://www.keycloak.org/high-availability/multi-cluster/deploy-keycloak-kubernetes
+  metrics:
+    enabled: true
+    eventMetricsUserEnabled: true
+    grafanaDashboardsEnabled: false
+  resources:
+    requests:
+      cpu: 300m
+      memory: 1700Mi
+    limits:
+      cpu: '2'
+      memory: 2Gi
+  tracing:
+    enabled: true
+    endpoint: http://otel-collector.otel.svc.cluster.local:4317
+    samplerType: parentbased_traceidratio
+    samplerRatio: 1
+
+postgresql:
+  enabled: true
+  name: postgresql-db
+  ssl: true
+  image:
+    name: docker.io/library/postgres
+    tag: 17
+
+realms:
+  - name: example-realm
+    displayName: Example Realm
+    client:
+      name: example-client
+    user:
+      username: johnDoe
+      password: johnDoe
+      firstName: John
+      lastName: Doe
+      email: john.doe@example.com
+      emailVerified: true
+      enabled: true
+
