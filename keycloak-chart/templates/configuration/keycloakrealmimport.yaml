@@ -37,6 +37,9 @@ spec:
         enabled: true
         # TO DO: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html-single/operator_guide/index#realm-import-placeholders
         credentials:
-          - value: {{ $realm.user.password }}
+          - type: password
+            value: {{ $realm.user.password }}
+        realmRoles:
+          - default-roles-example-realm
     groups: []
 {{- end }}
