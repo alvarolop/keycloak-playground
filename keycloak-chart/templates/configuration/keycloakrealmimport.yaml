@@ -30,6 +30,8 @@ spec:
         directAccessGrantsEnabled: true
     users:
       - username: {{ $realm.user.username }}
+        # https://github.com/keycloak/keycloak/issues/43195
+        createdTimestamp: {{ $realm.user.createdTimestamp }}
         email: {{ $realm.user.email }}
         emailVerified: true
         firstName: {{ $realm.user.firstName }}

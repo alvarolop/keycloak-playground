@@ -54,6 +54,7 @@ realms:
       password: johnDoe
       firstName: John
       lastName: Doe
+      createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
       email: john.doe@example.com
       emailVerified: true
       enabled: true
