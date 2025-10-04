@@ -15,33 +15,62 @@ spec:
     displayName: {{ $realm.displayName }}
     enabled: true
     clients:
-      # - redirectUris:
-      #     - 'https://changeme.com/*'
-      #   enabled: true
-      #   clientId: rhdh-client
-      #   
-      #   standardFlowEnabled: true
-      #   serviceAccountsEnabled: true
-      - name: {{ $realm.clientName }}
-        clientId: {{ $realm.clientName }}
+      {{- range $client := $realm.clients }}
+      - name: {{ $client.name }}
+        clientId: {{ $client.name }}
         enabled: true
         redirectUris:
           - "https://oauth-openshift.apps.{{ $.Values.global.clusterDomain }}/oauth2callback/keycloak/*"
+          - "http://localhost:8080/*"
+        webOrigins:
+          - "+"
         directAccessGrantsEnabled: true
+        standardFlowEnabled: true
+        serviceAccountsEnabled: true
+        clientAuthenticatorType: client-secret
+        secret: {{ $client.name }}-secret
+        authorizationServicesEnabled: true
+        protocol: openid-connect
+        publicClient: false
+        attributes:
+          access.token.lifespan: "300"
+      {{- end }}
+    roles:
+      realm:
+        {{- range $role := $realm.roles }}
+        - name: {{ $role.name }}
+          description: {{ $role.description }}
+        {{- end }}
     users:
-      - username: {{ $realm.user.username }}
+      {{- range $user := $realm.users }}
+      - username: {{ $user.username }}
         # https://github.com/keycloak/keycloak/issues/43195
-        createdTimestamp: {{ $realm.user.createdTimestamp }}
-        email: {{ $realm.user.email }}
-        emailVerified: true
-        firstName: {{ $realm.user.firstName }}
-        lastName: {{ $realm.user.lastName }}
-        enabled: true
-        # TO DO: https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2/html-single/operator_guide/index#realm-import-placeholders
+        createdTimestamp: {{ $user.createdTimestamp }}
+        email: {{ $user.email }}
+        emailVerified: {{ $user.emailVerified }}
+        firstName: {{ $user.firstName }}
+        lastName: {{ $user.lastName }}
+        enabled: {{ $user.enabled }}
         credentials:
           - type: password
-            value: {{ $realm.user.password }}
+            value: {{ $user.password }}
         realmRoles:
-          - default-roles-example-realm
-    groups: []
+          {{- range $role := $user.realmRoles }}
+          - {{ $role }}
+          {{- end }}
+        groups:
+          {{- range $group := $user.groups }}
+          - {{ $group }}
+          {{- end }}
+      {{- end }}
+    groups:
+      {{- range $group := $realm.groups }}
+      - name: {{ $group.name }}
+        displayName: {{ $group.displayName }}
+        subGroups:
+          {{- range $subGroup := $group.subGroups }}
+          - name: {{ $subGroup.name }}
+            displayName: {{ $subGroup.displayName }}
+          {{- end }}
+      {{- end }}
 {{- end }}

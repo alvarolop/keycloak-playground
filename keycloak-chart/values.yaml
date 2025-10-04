@@ -7,7 +7,7 @@ global:
   clusterDomain: $BASE_DOMAIN # ocp.sandboxXXX.example.com
 
 operator:
-  enabled: false
+  enabled: true
   channel: stable-v26.2
   installPlanApproval: Automatic
 
@@ -45,17 +45,44 @@ postgresql:
     tag: 17
 
 realms:
-  - name: example-realm
-    displayName: Example Realm
-    client:
-      name: example-client
-    user:
-      username: johnDoe
-      password: johnDoe
-      firstName: John
-      lastName: Doe
-      createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
-      email: john.doe@example.com
-      emailVerified: true
-      enabled: true
+  - name: demo
+    displayName: Demo Realm
+    clients:
+      - name: quarkus-petclinic
+    groups:
+      - name: staff
+        displayName: Staff
+        subGroups:
+          - name: personal-staff
+            displayName: Personal staff
+    roles:
+      - name: vet
+        description: Veterinarian role
+      - name: assistant
+        description: Assistant role
+    users:
+      - username: alice
+        password: alice
+        firstName: Alice
+        lastName: Doe
+        email: alice@example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        realmRoles:
+          - vet
+        groups:
+          - staff/personal-staff
+      - username: bob
+        password: bob
+        firstName: Bob
+        lastName: Doe
+        email: bob@example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        realmRoles:
+          - assistant
+        groups:
+          - staff/personal-staff
 
