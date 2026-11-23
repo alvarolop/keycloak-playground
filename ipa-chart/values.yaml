@@ -1,0 +1,57 @@
+# IPA Server must know it's own hostname to work properly....
+# these must be set in line with whats in the cluster !!
+app_domain: apps.mycluster.example.com
+admin_password: Passw0rd123
+realm: "-r redhatlabs.dev"
+
+# sensible defaults
+image: quay.io/freeipa/freeipa-server:fedora-39-4.11.1
+install_opts: "-U --setup-dns --no-forwarders --no-ntp"
+container_args: "ipa-server-install"
+volume: 5Gi
+
+# this can be used if not using helm install to set the correct ns
+# namespaceOverride: ipa
+
+# this example is using the ldap admin user and password as the bind creds
+# and expects a group in ldap called `student`
+# disabled by default so as to not overwrite existing oauth configs in openshift-config ns
+ocp_auth:
+  enabled: false
+  bind_dn: "uid=ldap_admin,cn=users,cn=accounts,dc=redhatlabs,dc=dev"
+  bind_password: Passw0rd
+  base: "cn=student,cn=groups,cn=accounts,dc=redhatlabs,dc=dev"
+  domain: "dc=redhatlabs,dc=dev"
+
+machineconfig:
+  enabled: true
+  ignition_version: 3.2.0
+
+# assumes node-role.kubernetes.io/infra: "" on one or more nodes
+runOnInfra: false
+
+# using predefined clusterroles to bind to ldap groups
+ldap_group_sync: false
+
+group_role_bindings:
+  admin: ocp_admins
+  edit: ocp_devs
+  view: ocp_viewers
+
+# values passed to the sync dependency must match the ones above
+cronjob-ldap-group-sync:
+  ldap_bind_dn: 'uid=ldap_admin,cn=users,cn=accounts,dc=redhatlabs,dc=dev'
+  ldap_bind_password: 'Passw0rd'
+  ldap_group_membership_attributes: '["member"]'
+  ldap_group_name_attributes: '["cn"]'
+  ldap_group_uid_attribute: ipaUniqueID
+  # ldap_groups_filter: (&(objectclass=ipausergroup)(cn=student)) use this student is not a group of groups but just contains users
+  ldap_groups_filter: (&(objectclass=ipausergroup)(memberOf=cn=student,cn=groups,cn=accounts,dc=redhatlabs,dc=dev))
+  ldap_groups_search_base: 'cn=groups,cn=accounts,dc=redhatlabs,dc=dev'
+  ldap_groups_whitelist: ''
+  ldap_url: 'ldap://ipa.ipa.svc.cluster.local:389'
+  ldap_user_name_attributes: '["uid"]'
+  ldap_user_uid_attribute: dn
+  ldap_users_search_base: 'cn=users,cn=accounts,dc=redhatlabs,dc=dev'
+  namespace: ipa
+  schedule: '* * * * *'  # '@hourly'

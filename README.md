@@ -96,6 +96,11 @@ The product does not come with any Grafana Dashboards. However, you can use the 
 
 
 
+## Additional guides
+
+- [Deploy FreeIPA as an authentication backend](docs/freeipa.md)
+
+
 ## Useful links
 
 - [Red Hat build of Keycloak Documentation](https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2).
