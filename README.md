@@ -95,7 +95,6 @@ The product does not come with any Grafana Dashboards. However, you can use the 
 
 
 
-
 ## Additional guides
 
 - [Deploy FreeIPA as an authentication backend](docs/freeipa.md)
@@ -106,8 +105,9 @@ The product does not come with any Grafana Dashboards. However, you can use the 
 - [Red Hat build of Keycloak Documentation](https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6).
 - [Red Hat build of Keycloak Component Details](https://access.redhat.com/articles/7027683).
 - [Red Hat build of Keycloak Supported Configurations](https://access.redhat.com/articles/7033107).
+- [Keycloak Operator CRDs](https://github.com/keycloak/keycloak-k8s-resources/tree/26.6.0/kubernetes): This repository keeps track of the CRDs for the Keycloak Operator so that you can use them to create your own resources.
 
 
 ## Great Workshops
 
-- [Angel Ollé's Keycloak workshop](https://olleb.com/rhbk-workshop/).
+- [Angel Ollé and David Borrego's Keycloak workshop](https://olleb.com/rhbk-workshop/).
