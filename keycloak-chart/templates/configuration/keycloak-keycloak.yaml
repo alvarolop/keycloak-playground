@@ -38,29 +38,18 @@ spec:
   resources:
 {{- toYaml .Values.keycloak.resources | nindent 4 }}
 {{- end }}
-{{- if .Values.keycloak.tracing }}
-  tracing:
-    enabled: {{ .Values.keycloak.tracing.enabled | default false }}
-    endpoint: {{ .Values.keycloak.tracing.endpoint | default "http://localhost:4317" }}
-    samplerType: {{ .Values.keycloak.tracing.samplerType | default "traceidratio" }}
-    samplerRatio: {{ .Values.keycloak.tracing.samplerRatio | default 1 }}
-    resourceAttributes:
-      some.attribute: something
+{{- if or .Values.keycloak.logging .Values.keycloak.metrics.enabled }}
   additionalOptions:
-    {{ if .Values.keycloak.logging }}
+    {{- if .Values.keycloak.logging }}
     - name: log-console-output
       value: {{ .Values.keycloak.logging.logConsoleOutput | default "default" }}
-    {{ end }}
-    {{ if .Values.keycloak.tracing.enabled }}
-    - name: tracing-jdbc-enabled
-      value: 'false'
-    {{ end }}
-    {{ if .Values.keycloak.metrics.enabled }}
+    {{- end }}
+    {{- if .Values.keycloak.metrics.enabled }}
     - name: metrics-enabled
       value: 'true'
-      {{ if .Values.keycloak.metrics.eventMetricsUserEnabled }}
+      {{- if .Values.keycloak.metrics.eventMetricsUserEnabled }}
     - name: event-metrics-user-enabled
       value: 'true'
-      {{ end }}
-    {{ end }}
+      {{- end }}
+    {{- end }}
 {{- end }}

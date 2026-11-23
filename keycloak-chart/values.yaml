@@ -30,11 +30,6 @@ keycloak:
     limits:
       cpu: '2'
       memory: 2Gi
-  tracing:
-    enabled: true
-    endpoint: http://otel-collector.otel.svc.cluster.local:4317
-    samplerType: parentbased_traceidratio
-    samplerRatio: 1
 
 postgresql:
   enabled: true
