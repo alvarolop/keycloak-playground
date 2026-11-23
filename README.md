@@ -103,7 +103,7 @@ The product does not come with any Grafana Dashboards. However, you can use the 
 
 ## Useful links
 
-- [Red Hat build of Keycloak Documentation](https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.2).
+- [Red Hat build of Keycloak Documentation](https://docs.redhat.com/en/documentation/red_hat_build_of_keycloak/26.6).
 - [Red Hat build of Keycloak Component Details](https://access.redhat.com/articles/7027683).
 - [Red Hat build of Keycloak Supported Configurations](https://access.redhat.com/articles/7033107).
 

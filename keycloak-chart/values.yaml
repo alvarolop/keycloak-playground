@@ -8,7 +8,7 @@ global:
 
 operator:
   enabled: true
-  channel: stable-v26.2
+  channel: stable-v26.6
   installPlanApproval: Automatic
 
 keycloak:
