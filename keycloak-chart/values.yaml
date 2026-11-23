@@ -78,10 +78,8 @@ realms:
               policies: [Vet Role Policy]
     groups:
       - name: staff
-        displayName: Staff
         subGroups:
           - name: personal-staff
-            displayName: Personal staff
     roles:
       - name: vet
         description: Veterinarian role
@@ -135,18 +133,13 @@ realms:
     groups:
       # Platform groups: access to the OpenShift AI dashboard and projects
       - name: odh-admins
-        displayName: OpenShift AI administrators
       - name: odh-users
-        displayName: OpenShift AI users
       # Acme Corp (fake company) with two consumer teams. The groups claim carries the team name (for example
       # acme-support), so each one can get a different MaaSSubscription/MaaSAuthPolicy and a different set of models
       - name: acme
-        displayName: Acme Corp
         subGroups:
           - name: acme-support
-            displayName: Acme Customer Support team
           - name: acme-engineering
-            displayName: Acme Engineering team
     users:
       - username: ai-admin
         password: ai-admin

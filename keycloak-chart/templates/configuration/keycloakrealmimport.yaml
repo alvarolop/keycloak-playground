@@ -113,23 +113,28 @@ spec:
         credentials:
           - type: password
             value: {{ $user.password }}
+        {{- with $user.realmRoles }}
         realmRoles:
-          {{- range $role := $user.realmRoles }}
+          {{- range $role := . }}
           - {{ $role }}
           {{- end }}
+        {{- end }}
+        {{- with $user.groups }}
         groups:
-          {{- range $group := $user.groups }}
+          {{- range $group := . }}
           - {{ $group }}
           {{- end }}
+        {{- end }}
       {{- end }}
     groups:
       {{- range $group := $realm.groups }}
+      # The CRD has no displayName for groups: the API server would drop it and Argo CD would show a permanent diff
       - name: {{ $group.name }}
-        displayName: {{ $group.displayName }}
+        {{- with $group.subGroups }}
         subGroups:
-          {{- range $subGroup := $group.subGroups }}
+          {{- range $subGroup := . }}
           - name: {{ $subGroup.name }}
-            displayName: {{ $subGroup.displayName }}
           {{- end }}
+        {{- end }}
       {{- end }}
 {{- end }}
