@@ -112,4 +112,103 @@ realms:
           - assistant
         groups:
           - staff/personal-staff
-
+  # Realm to demo the OpenShift AI integration with an external OIDC provider
+  # https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/managing_openshift_ai/configuring-external-oidc-provider_managing-rhoai
+  - name: openshift-ai
+    displayName: OpenShift AI Realm
+    clients:
+      - name: data-science-gateway
+        redirectUris:
+          - "https://rh-ai.apps.{{ .Values.global.clusterDomain }}/oauth2/callback"
+        # Expose the groups of the user in the tokens so they can be mapped to OpenShift RBAC
+        protocolMappers:
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            consentRequired: false
+            config:
+              claim.name: groups
+              full.path: "false"
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"
+    groups:
+      # Platform groups: access to the OpenShift AI dashboard and projects
+      - name: odh-admins
+        displayName: OpenShift AI administrators
+      - name: odh-users
+        displayName: OpenShift AI users
+      # Acme Corp (fake company) with two consumer teams. The groups claim carries the team name (for example
+      # acme-support), so each one can get a different MaaSSubscription/MaaSAuthPolicy and a different set of models
+      - name: acme
+        displayName: Acme Corp
+        subGroups:
+          - name: acme-support
+            displayName: Acme Customer Support team
+          - name: acme-engineering
+            displayName: Acme Engineering team
+    users:
+      - username: ai-admin
+        password: ai-admin
+        firstName: Ada
+        lastName: Admin
+        email: ai-admin@example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        groups:
+          - odh-admins
+          - odh-users
+      - username: support-lead
+        password: support-lead
+        firstName: Sara
+        lastName: Support
+        email: support-lead@acme.example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        groups:
+          - acme/acme-support
+          - odh-users
+      - username: support-agent
+        password: support-agent
+        firstName: Sam
+        lastName: Agent
+        email: support-agent@acme.example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        groups:
+          - acme/acme-support
+          - odh-users
+      - username: eng-lead
+        password: eng-lead
+        firstName: Eva
+        lastName: Engineer
+        email: eng-lead@acme.example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        groups:
+          - acme/acme-engineering
+          - odh-users
+      - username: eng-dev
+        password: eng-dev
+        firstName: Dan
+        lastName: Developer
+        email: eng-dev@acme.example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z
+        groups:
+          - acme/acme-engineering
+          - odh-users
+      # Authenticates but belongs to no team: no model access
+      - username: outsider
+        password: outsider
+        firstName: Olga
+        lastName: Outsider
+        email: outsider@example.com
+        emailVerified: true
+        enabled: true
+        createdTimestamp: 1759276800000 # 2025-10-01T00:00:00Z

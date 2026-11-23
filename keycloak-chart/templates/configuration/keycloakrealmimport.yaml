@@ -20,8 +20,14 @@ spec:
         clientId: {{ $client.name }}
         enabled: true
         redirectUris:
+          {{- if $client.redirectUris }}
+          {{- range $uri := $client.redirectUris }}
+          - {{ tpl $uri $ | quote }}
+          {{- end }}
+          {{- else }}
           - "https://oauth-openshift.apps.{{ $.Values.global.clusterDomain }}/oauth2callback/keycloak/*"
           - "http://localhost:8080/*"
+          {{- end }}
         webOrigins:
           - "+"
         directAccessGrantsEnabled: true
@@ -29,11 +35,15 @@ spec:
         serviceAccountsEnabled: true
         clientAuthenticatorType: client-secret
         secret: {{ $client.name }}-secret
-        authorizationServicesEnabled: true
+        authorizationServicesEnabled: {{ if $client.authorization }}true{{ else }}false{{ end }}
         protocol: openid-connect
         publicClient: false
         attributes:
           access.token.lifespan: "300"
+        {{- with $client.protocolMappers }}
+        protocolMappers:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with $client.authorization }}
         authorizationSettings:
           allowRemoteResourceManagement: true
@@ -82,12 +92,14 @@ spec:
             {{- end }}
         {{- end }}
       {{- end }}
+    {{- if $realm.roles }}
     roles:
       realm:
         {{- range $role := $realm.roles }}
         - name: {{ $role.name }}
           description: {{ $role.description }}
         {{- end }}
+    {{- end }}
     users:
       {{- range $user := $realm.users }}
       - username: {{ $user.username }}
