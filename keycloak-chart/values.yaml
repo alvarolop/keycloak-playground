@@ -49,6 +49,38 @@ realms:
     displayName: Demo Realm
     clients:
       - name: quarkus-petclinic
+        # Authorization Services: any user in 'staff' can access the app,
+        # only users with the 'vet' role can access /vets.html
+        authorization:
+          scopes:
+            - view
+          resources:
+            - name: Default Resource
+              uris: ["/*"]
+              scopes: [view]
+            - name: Vets Resource
+              uris: ["/vets.html"]
+              scopes: [view]
+          policies:
+            - name: Default Group Policy
+              type: group
+              groups:
+                - path: /staff
+                  extendChildren: true
+            - name: Vet Role Policy
+              type: role
+              roles:
+                - id: vet
+                  required: false
+          permissions:
+            - name: Default Resource Permission
+              resources: [Default Resource]
+              scopes: [view]
+              policies: [Default Group Policy]
+            - name: Vets Resource Permission
+              resources: [Vets Resource]
+              scopes: [view]
+              policies: [Vet Role Policy]
     groups:
       - name: staff
         displayName: Staff

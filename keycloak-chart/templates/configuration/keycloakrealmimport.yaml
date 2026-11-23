@@ -34,6 +34,53 @@ spec:
         publicClient: false
         attributes:
           access.token.lifespan: "300"
+        {{- with $client.authorization }}
+        authorizationSettings:
+          allowRemoteResourceManagement: true
+          policyEnforcementMode: ENFORCING
+          decisionStrategy: UNANIMOUS
+          scopes:
+            {{- range $scope := .scopes }}
+            - name: {{ $scope }}
+            {{- end }}
+          resources:
+            {{- range $resource := .resources }}
+            - name: {{ $resource.name }}
+              displayName: {{ $resource.displayName | default $resource.name }}
+              ownerManagedAccess: false
+              uris:
+                {{- range $uri := $resource.uris }}
+                - {{ $uri | quote }}
+                {{- end }}
+              scopes:
+                {{- range $scope := $resource.scopes }}
+                - name: {{ $scope }}
+                {{- end }}
+            {{- end }}
+          policies:
+            {{- range $policy := .policies }}
+            - name: {{ $policy.name }}
+              type: {{ $policy.type }}
+              logic: POSITIVE
+              decisionStrategy: UNANIMOUS
+              config:
+                {{- if eq $policy.type "group" }}
+                groups: {{ $policy.groups | toJson | quote }}
+                {{- else if eq $policy.type "role" }}
+                roles: {{ $policy.roles | toJson | quote }}
+                {{- end }}
+            {{- end }}
+            {{- range $permission := .permissions }}
+            - name: {{ $permission.name }}
+              type: scope
+              logic: POSITIVE
+              decisionStrategy: UNANIMOUS
+              config:
+                resources: {{ $permission.resources | toJson | quote }}
+                scopes: {{ $permission.scopes | toJson | quote }}
+                applyPolicies: {{ $permission.policies | toJson | quote }}
+            {{- end }}
+        {{- end }}
       {{- end }}
     roles:
       realm:
